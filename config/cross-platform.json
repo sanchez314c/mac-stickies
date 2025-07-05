@@ -1,0 +1,133 @@
+{
+  "cross_platform_build": {
+    "enabled": true,
+    "primary_platform": "macos",
+    "supported_platforms": ["macos"],
+    "architecture_matrix": {
+      "macos": {
+        "x86_64": {
+          "deployment_target": "12.0",
+          "sdk": "macosx",
+          "compiler_flags": ["-target", "x86_64-apple-macos12.0"],
+          "linker_flags": []
+        },
+        "arm64": {
+          "deployment_target": "12.0",
+          "sdk": "macosx",
+          "compiler_flags": ["-target", "arm64-apple-macos12.0"],
+          "linker_flags": []
+        }
+      }
+    }
+  },
+  "universal_binary": {
+    "macos": {
+      "enabled": true,
+      "architectures": ["x86_64", "arm64"],
+      "min_deployment_target": "12.0",
+      "combine_strategy": "lipo",
+      "output_format": "app_bundle"
+    }
+  },
+  "build_matrix": {
+    "configurations": ["Debug", "Release"],
+    "architectures": ["x86_64", "arm64"],
+    "platforms": ["macOS"],
+    "deployment_targets": ["12.0", "13.0", "14.0"]
+  },
+  "ci_cd": {
+    "github_actions": {
+      "macos_runners": ["macos-12", "macos-13", "macos-14"],
+      "xcode_versions": ["14.3.1", "15.0", "15.1"],
+      "matrix_strategy": {
+        "xcode": ["14.3.1", "15.0"],
+        "macos": ["macos-12", "macos-13"],
+        "config": ["Debug", "Release"]
+      }
+    },
+    "build_stages": [
+      "setup",
+      "dependencies",
+      "lint",
+      "test",
+      "build",
+      "archive",
+      "distribute"
+    ]
+  },
+  "distribution_channels": {
+    "app_store": {
+      "enabled": false,
+      "requirements": {
+        "code_signing": true,
+        "notarization": true,
+        "sandboxing": true,
+        "hardened_runtime": true
+      }
+    },
+    "direct_download": {
+      "enabled": true,
+      "formats": ["dmg", "pkg", "zip"],
+      "compression": {
+        "dmg": {
+          "filesystem": "HFS+",
+          "size": "auto",
+          "encryption": false
+        },
+        "pkg": {
+          "signed": true,
+          "identifier": "com.jasonpaulmichaels.StickyNotes.installer"
+        }
+      }
+    },
+    "homebrew": {
+      "enabled": false,
+      "formula_path": "Formula/sticky-notes.rb",
+      "tap": "jasonpaulmichaels/homebrew-tap"
+    }
+  },
+  "compatibility": {
+    "macos_versions": {
+      "minimum": "12.0",
+      "recommended": "13.0",
+      "latest_tested": "15.0"
+    },
+    "chip_architectures": {
+      "intel": "x86_64",
+      "apple_silicon": "arm64",
+      "universal": "x86_64+arm64"
+    },
+    "swift_versions": {
+      "minimum": "5.7",
+      "recommended": "5.9",
+      "latest_tested": "5.10"
+    }
+  },
+  "performance_optimization": {
+    "compiler_flags": {
+      "release": [
+        "-O",
+        "-whole-module-optimization",
+        "-enable-library-evolution"
+      ],
+      "debug": [
+        "-Onone",
+        "-g"
+      ]
+    },
+    "linker_flags": {
+      "release": [
+        "-dead_strip",
+        "-Xlinker",
+        "-order_file",
+        "-Xlinker",
+        "ordering.txt"
+      ]
+    },
+    "size_optimization": {
+      "strip_debug_symbols": true,
+      "enable_bitcode": true,
+      "remove_unused_code": true
+    }
+  }
+}

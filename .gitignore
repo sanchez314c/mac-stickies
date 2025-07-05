@@ -1,0 +1,482 @@
+# Xcode
+#
+# gitignore contributors: remember to update Global/Xcode.gitignore, Objective-C.gitignore & Swift.gitignore
+
+## User settings
+xcuserdata/
+
+## compatibility with Xcode 8 and earlier (ignoring not required starting Xcode 9)
+*.xcscmblueprint
+*.xccheckout
+
+## compatibility with Xcode 3 and earlier (ignoring not required starting Xcode 4)
+build/
+DerivedData/
+*.moved-aside
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+
+## Obj-C/Swift specific
+*.hmap
+
+## App packaging
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+## Playgrounds
+timeline.xctimeline
+playground.xcworkspace
+
+# Swift Package Manager
+#
+# Add this line if you want to avoid checking in source code from Swift Package Manager dependencies.
+Packages/
+Package.pins
+Package.resolved
+*.xcodeproj
+#
+# Xcode automatically generates this directory with a .xcworkspacedata file and xcuserdata
+# hence it is not needed unless you have added a package configuration file to your project
+.swiftpm/
+
+.build/
+
+# Swift specific
+.swift-version
+*.swiftsourceinfo
+*.swiftmodule
+*.swiftdoc
+
+# SwiftUI Previews
+*.preview
+*.previews
+
+# CocoaPods
+#
+# We recommend against adding the Pods directory to your .gitignore. However
+# you should judge for yourself, the pros and cons are mentioned at:
+# https://guides.cocoapods.org/using/using-cocoapods.html#should-i-check-the-pods-directory-into-source-control
+#
+# Pods/
+
+# Carthage
+#
+# Add this line if you want to avoid checking in source code from Carthage dependencies.
+# Carthage/Checkouts
+
+Carthage/Build/
+
+# Accio dependency management
+Dependencies/
+.accio/
+
+# fastlane
+#
+# It is recommended to not store the screenshots in the git repo. Instead, use fastlane to re-generate the
+# screenshots whenever they are needed.
+# For more information about the recommended setup visit:
+# https://docs.fastlane.tools/best-practices/source-control/
+
+*/fastlane/report.xml
+*/fastlane/Preview.html
+*/fastlane/screenshots/**/*.png
+*/fastlane/test_output
+
+# Code Injection
+#
+# After new code Injection tools there's a generated folder /iOSInjectionProject
+# https://github.com/johnno1962/injectionforxcode
+
+iOSInjectionProject/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Icon must end with two \r
+Icon
+
+# Thumbnails
+._*
+
+# Files that might appear in the root of a volume
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Directories potentially created on remote AFP share
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Xcode Patch
+*.xcodeproj/*
+!*.xcodeproj/project.pbxproj
+!*.xcodeproj/xcshareddata/
+!*.xcodeproj/project.xcworkspace/
+*.xcodeproj/project.xcworkspace/*
+!*.xcodeproj/project.xcworkspace/contents.xcworkspacedata
+!*.xcodeproj/project.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/*
+!*.xcodeproj/xcuserdata/**/*.xcuserstate
+
+# Bundle artifacts
+*.xcarchive
+
+# CocoaPods artifacts
+Pods/
+
+# Carthage artifacts
+Carthage/Build/
+
+# AppCode specific files
+.idea/
+
+# VSCode
+.vscode/
+*.code-workspace
+
+# Temporary files
+*~
+.tmp/
+*.tmp
+*.swp
+*.swo
+
+# Log files
+*.log
+logs/
+
+# Local configuration
+config/local.*
+*.local
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Build artifacts
+build/
+dist/
+release/
+out/
+coverage/
+
+# Node.js (if using for build tools)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Backup files
+*.backup.*
+*.bak
+*.old
+
+# Archive directory
+archive/
+
+# Temporary build directories
+build-temp/
+temp/
+
+# Testing artifacts
+*.gcno
+*.gcda
+coverage.xml
+test_output/
+
+# Monitoring and logs
+monitoring/logs/
+*.trace
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/
+fastlane/test_output/
+
+# Additional Xcode and Swift artifacts
+*.xcworkspace/xcuserdata/
+*.xcworkspace/xcshareddata/
+*.xcodeproj/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcshareddata/
+*.xcarchive/
+*.xcframework/
+*.app
+*.appex
+*.framework
+*.dylib
+*.bundle
+
+# Core Data
+*.xcdatamodeld/*.xcdatamodel/contents
+
+# Testing and Coverage
+*.profdata
+*.profraw
+*.xcresult/
+test_output/
+coverage/
+*.gcno
+*.gcda
+*.gcov
+
+# SwiftLint and SwiftFormat
+.swiftlint.cache
+.swiftformat
+
+# macOS specific
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Additional environment and config files
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+config/local.*
+*.local
+secrets.json
+credentials.json
+
+# Build and distribution
+build/
+dist/
+release/
+out/
+*.ipa
+*.dSYM.zip
+*.dSYM
+*.app.dSYM.zip
+*.app.dSYM
+
+# Logs and monitoring
+*.log
+logs/
+monitoring/logs/
+*.trace
+*.crash
+
+# IDEs and editors
+.idea/
+.vscode/
+*.code-workspace
+*.sublime-project
+*.sublime-workspace
+
+# Temporary and backup files
+*~
+.tmp/
+*.tmp
+*.swp
+*.swo
+*.backup.*
+*.bak
+*.old
+
+# Archive and temp directories
+archive/
+build-temp/
+temp/
+tmp/
+
+# Node.js (for build tools and scripts)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Python (if used for tooling)
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Ruby (if used for tooling)
+.bundle/
+.bundler/
+vendor/bundle/
+
+# Additional development artifacts
+*.orig
+*.rej
+*.patch
+*.diff
+
+# AI and LLM artifacts
+*.ai-backup.*
+*.llm-temp.*
+.ai-session/
+.claude-session/
+.chatgpt-session/
+
+# Documentation build artifacts
+docs/_build/
+docs/.doctrees/
+docs/site/
+*.aux
+*.toc
+*.out
+*.synctex.gz
+
+# Performance and profiling
+*.profdata
+*.profraw
+*.trace
+*.instrumentation
+*.speedscope
+*.flamegraph
+
+# Security and secrets (additional patterns)
+*.key
+*.pem
+*.crt
+*.p12
+*.pfx
+secrets/
+.private/
+.ssh-keys/
+
+# Cloud and sync artifacts
+.icloud/
+.cloud-sync/
+.sync-conflict*
+.sync-temp*
+
+# Package manager caches
+.carthage/
+.checkouts/
+.build/
+.swiftpm/xcode/package.xcworkspace/
+.swiftpm/xcode/.swiftpm/
+
+# Test data and fixtures
+test-data/
+fixtures/
+*.testdb
+*.test.sqlite
+
+# Localization and internationalization
+*.strings.bak
+*.lproj/~*
+*.xliff~
+
+# Asset generation and optimization
+*.optimized.*
+*.compressed.*
+.asset-cache/
+
+# Container and virtualization
+.docker/
+.vagrant/
+.virtualbox/
+
+# Database and storage
+*.sqlite-shm
+*.sqlite-wal
+*.db-journal
+*.fdb
+
+# Monitoring and analytics
+monitoring/data/
+monitoring/cache/
+*.metrics
+*.dashboard
+
+# Backup and versioning (additional)
+*.version-*
+*.release-*
+*.hotfix-*
+archive/legacy-docs/
+archive/pre-trash/
+
+# Build system specific
+.xcode-build/
+.xcode-logs/
+.xcode-derivatives/
+.build-logs/
+swift-package-manager/
+
+# Documentation generation
+docs/generated/
+docs/auto-generated/
+.api-docs/
+
+# Temporary IDE files
+.vscode-insiders/
+.eclipse/
+.netbeans/
+.atelier/
+
+# Package distribution
+*.pkg
+*.dmg
+*.zip
+*.tar.gz
+*.tar.bz2
+*.rar
+*.7z
+
+# Code signing and notarization
+*.staple
+*.notarization
+.codesigning/
+
+# Crash reports and diagnostics
+*.crash
+*.hang
+*.diag
+*.ips
+*.symbolicate
+
+# Legacy directory
+legacy/
+
+# Windows thumbnail cache
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Xcode user data (per-user settings)
+*.xcuserdata
+xcuserdata/

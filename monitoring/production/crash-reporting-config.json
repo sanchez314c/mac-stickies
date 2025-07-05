@@ -1,0 +1,27 @@
+{
+  "project": "StickyNotes",
+  "bundle_id": "com.superclaude.stickynotes",
+  "reporting": {
+    "enabled": true,
+    "endpoint": "https://api.sentry.io/v1/store/",
+    "dsn": "${SENTRY_DSN}",
+    "environment": "production",
+    "release": "${RELEASE_VERSION}",
+    "sample_rate": 1.0
+  },
+  "filters": {
+    "ignore_exceptions": [
+      "NSUserCancelledError",
+      "CKErrorDomain"
+    ],
+    "ignore_files": [
+      "CoreFoundation",
+      "libsystem"
+    ]
+  },
+  "integrations": {
+    "auto_session_tracking": true,
+    "enable_swizzling": true,
+    "enable_tracing": true
+  }
+}

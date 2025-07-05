@@ -1,0 +1,156 @@
+name: Release Build
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      build_type:
+        description: 'Build type'
+        required: true
+        default: 'universal'
+        type: choice
+        options:
+        - universal
+        - arch-specific
+        - release
+
+env:
+  APP_NAME: StickyNotes
+  BUNDLE_ID: com.jasonpaulmichaels.StickyNotes
+
+jobs:
+  build-and-release:
+    name: Build and Release
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Swift
+        uses: swift-actions/setup-swift@v1
+        with:
+          swift-version: '5.10'
+
+      - name: Install build tools
+        run: |
+          brew install swiftlint swiftformat
+
+      - name: Cache Swift dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            .build
+            ~/Library/Caches/org.swift.swiftpm
+          key: ${{ runner.os }}-swift-${{ hashFiles('**/Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-swift-
+
+      # Quality Checks
+      - name: Run Quality Checks
+        run: |
+          swiftlint lint --strict
+          swiftformat --lint .
+
+      # Build based on type
+      - name: Build Universal Binary
+        if: github.event.inputs.build_type == 'universal' || github.event_name == 'release'
+        run: |
+          chmod +x scripts/build-compile-dist.sh
+          ./scripts/build-compile-dist.sh --universal --release
+
+      - name: Build Architecture Specific
+        if: github.event.inputs.build_type == 'arch-specific'
+        run: |
+          chmod +x scripts/build-compile-dist.sh
+          ./scripts/build-compile-dist.sh --arch-specific --release
+
+      - name: Build Standard Release
+        if: github.event.inputs.build_type == 'release'
+        run: |
+          chmod +x scripts/build-compile-dist.sh
+          ./scripts/build-compile-dist.sh --release
+
+      # Create DMG for distribution
+      - name: Create Distribution DMG
+        run: |
+          brew install create-dmg
+          mkdir -p dist/dmg
+          create-dmg \
+            --volname "StickyNotes" \
+            --volicon "StickyNotes/Resources/Assets.xcassets/AppIcon.appiconset/icon_512x512.png" \
+            --window-pos 200 120 \
+            --window-size 800 400 \
+            --icon-size 100 \
+            --icon "StickyNotes.app" 200 190 \
+            --hide-extension "StickyNotes.app" \
+            --app-drop-link 600 185 \
+            "StickyNotes.dmg" \
+            "dist/"
+
+      # Upload artifacts
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-artifacts
+          path: |
+            dist/
+            archives/
+          retention-days: 30
+
+      # Upload to release (only on release event)
+      - name: Upload Release Assets
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            dist/*.dmg
+            dist/*.pkg
+            archives/*.xcarchive
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  notarize:
+    name: Notarize Release
+    runs-on: macos-latest
+    needs: build-and-release
+    if: github.event_name == 'release'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: build-artifacts
+          path: artifacts/
+
+      - name: Import Developer Certificate
+        if: env.DEVELOPER_CERTIFICATE != ''
+        uses: apple-actions/import-codesign-certs@v2
+        with:
+          p12-file-base64: ${{ secrets.DEVELOPER_CERTIFICATE }}
+          p12-password: ${{ secrets.DEVELOPER_CERTIFICATE_PASSWORD }}
+
+      - name: Notarize Application
+        if: env.DEVELOPER_CERTIFICATE != ''
+        run: |
+          # Notarize the DMG
+          xcrun notarytool submit artifacts/dist/StickyNotes.dmg \
+            --apple-id "${{ secrets.APPLE_ID }}" \
+            --password "${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}" \
+            --team-id "${{ secrets.APPLE_TEAM_ID }}" \
+            --wait
+
+          # Staple the notarization ticket
+          xcrun stapler staple artifacts/dist/StickyNotes.dmg
+
+      - name: Upload Notarized Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: artifacts/dist/StickyNotes.dmg
+          tag_name: ${{ github.ref_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

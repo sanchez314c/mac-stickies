@@ -1,0 +1,37 @@
+{
+  "project": "StickyNotes",
+  "analytics": {
+    "enabled": true,
+    "provider": "mixpanel",
+    "api_key": "${MIXPANEL_API_KEY}",
+    "track_events": [
+      "app_launch",
+      "note_created",
+      "note_edited",
+      "note_deleted",
+      "export_completed",
+      "settings_changed",
+      "sync_completed",
+      "error_occurred"
+    ],
+    "user_properties": {
+      "platform": "macOS",
+      "app_version": "${APP_VERSION}",
+      "os_version": "${OS_VERSION}",
+      "device_type": "desktop"
+    },
+    "privacy": {
+      "require_consent": true,
+      "anonymize_ip": true,
+      "data_retention_days": 365
+    }
+  },
+  "reporting": {
+    "daily_active_users": true,
+    "weekly_active_users": true,
+    "monthly_active_users": true,
+    "feature_usage": true,
+    "error_rates": true,
+    "performance_metrics": true
+  }
+}

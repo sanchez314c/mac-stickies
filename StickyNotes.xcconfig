@@ -1,0 +1,65 @@
+// StickyNotes Build Configuration
+// This file contains optimized build settings for the StickyNotes app
+
+// Version Information
+MARKETING_VERSION = 1.0.0
+CURRENT_PROJECT_VERSION = 1
+
+// Bundle Configuration
+PRODUCT_BUNDLE_IDENTIFIER = com.superclaude.stickynotes
+PRODUCT_NAME = StickyNotes
+
+// Code Signing
+CODE_SIGN_IDENTITY = Apple Development
+CODE_SIGN_STYLE = Automatic
+DEVELOPMENT_TEAM = YOUR_TEAM_ID
+CODE_SIGN_ENTITLEMENTS = StickyNotes/Resources/StickyNotes.entitlements
+
+// macOS Deployment
+MACOSX_DEPLOYMENT_TARGET = 13.0
+SDKROOT = macosx
+
+// Swift Configuration
+SWIFT_VERSION = 5.0
+SWIFT_OPTIMIZATION_LEVEL = -O
+SWIFT_COMPILATION_MODE = wholemodule
+
+// Build Optimizations
+DEAD_CODE_STRIPPING = YES
+ENABLE_HARDENED_RUNTIME = YES
+LLVM_LTO = YES_THIN
+
+// Debug Configuration
+DEBUG_INFORMATION_FORMAT = dwarf
+
+// Release Configuration
+GCC_OPTIMIZATION_LEVEL = 3
+ENABLE_NS_ASSERTIONS = NO
+
+// Compiler Flags
+OTHER_SWIFT_FLAGS = -Xfrontend -warn-concurrency -Xfrontend -enable-actor-data-race-checks
+
+// Linker Flags
+OTHER_LDFLAGS = -Xlinker -no_deduplicate
+
+// Preprocessing
+GCC_PREPROCESSOR_DEFINITIONS = $(inherited)
+
+// Info.plist Configuration
+INFOPLIST_FILE = StickyNotes/Resources/Info.plist
+INFOPLIST_PREPROCESS = YES
+
+// Asset Compilation
+ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon
+ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor
+
+// Testing
+ENABLE_TESTABILITY = YES
+TEST_HOST =
+
+// Documentation
+CLANG_WARN_DOCUMENTATION_COMMENTS = YES
+
+// Security
+ENABLE_APP_SANDBOX = YES
+ENABLE_HARDENED_RUNTIME = YES

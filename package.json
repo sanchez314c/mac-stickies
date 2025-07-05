@@ -1,0 +1,120 @@
+{
+  "name": "mac-stickies",
+  "version": "0.0.1",
+  "description": "A modern macOS desktop sticky notes application built with SwiftUI and Core Data",
+  "main": "StickyNotes/StickyNotesApp.swift",
+  "author": "Jasonn Michaels <sanchez314c@jasonpaulmichaels.co>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sanchez314c/mac-stickies.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sanchez314c/mac-stickies/issues"
+  },
+  "homepage": "https://github.com/sanchez314c/mac-stickies#readme",
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "scripts": {
+    "build": "./scripts/build-compile-dist.sh",
+    "build:debug": "./scripts/build-compile-dist.sh --debug",
+    "build:release": "./scripts/build-compile-dist.sh --release",
+    "build:universal": "./scripts/build-compile-dist.sh --universal",
+    "build:arch-specific": "./scripts/build-compile-dist.sh --arch-specific",
+    "test": "./scripts/build-compile-dist.sh --test",
+    "lint": "swiftlint",
+    "format": "swiftformat .",
+    "clean": "./scripts/build-compile-dist.sh --clean",
+    "dist": "./scripts/build-compile-dist.sh --release --notarize",
+    "performance": "./scripts/build-compile-dist.sh --performance",
+    "validate": "./scripts/validate-transformation.sh",
+    "setup": "./scripts/setup-macos-development.sh",
+    "security": "./scripts/security-analysis.sh",
+    "quality": "./scripts/swift-quality-check.sh"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0"
+  },
+  "os": [
+    "darwin"
+  ],
+  "cpu": [
+    "x64",
+    "arm64"
+  ],
+  "keywords": [
+    "macos",
+    "swift",
+    "swiftui",
+    "core-data",
+    "sticky-notes",
+    "desktop-app",
+    "icloud",
+    "cloudkit"
+  ],
+  "config": {
+    "macos_deployment_target": "13.0",
+    "supported_architectures": ["x86_64", "arm64"],
+    "build_configurations": ["Debug", "Release"],
+    "code_signing": {
+      "development_team": "",
+      "provisioning_profile": "",
+      "entitlements": "StickyNotes/StickyNotes.entitlements"
+    }
+  },
+  "distribution": {
+    "app_store": {
+      "enabled": false,
+      "bundle_id": "com.jasonpaulmichaels.StickyNotes",
+      "category": "productivity"
+    },
+    "direct_download": {
+      "enabled": true,
+      "installer_format": "pkg",
+      "compression": "dmg"
+    },
+    "notarization": {
+      "enabled": true,
+      "apple_id": "",
+      "team_id": ""
+    }
+  },
+  "build": {
+    "swift_version": "5.10",
+    "xcode_version": "15.0+",
+    "platforms": ["macOS"],
+    "architectures": ["x86_64", "arm64"],
+    "optimization": {
+      "debug": {
+        "enable_bitcode": false,
+        "optimization_level": "none"
+      },
+      "release": {
+        "enable_bitcode": true,
+        "optimization_level": "fast"
+      }
+    }
+  },
+  "testing": {
+    "framework": "XCTest",
+    "coverage": {
+      "enabled": true,
+      "minimum_threshold": 80
+    },
+    "ui_tests": {
+      "enabled": true,
+      "target": "StickyNotesUITests"
+    }
+  },
+  "quality": {
+    "swiftlint": {
+      "enabled": true,
+      "config": ".swiftlint.yml"
+    },
+    "swiftformat": {
+      "enabled": true,
+      "config": ".swiftformat"
+    }
+  }
+}

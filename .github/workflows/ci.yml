@@ -1,0 +1,230 @@
+name: StickyNotes Quality Gates
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  quality-gates:
+    name: Quality Gates
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Swift
+        uses: swift-actions/setup-swift@v1
+        with:
+          swift-version: '5.10'
+
+      - name: Install dependencies
+        run: |
+          brew install swiftlint
+          brew install swiftformat
+
+      # Code Quality Checks
+      - name: SwiftLint
+        run: |
+          swiftlint lint --strict --quiet
+        continue-on-error: false
+
+      - name: SwiftFormat
+        run: |
+          swiftformat --lint --verbose .
+        continue-on-error: false
+
+      # Unit Tests
+      - name: Unit Tests
+        run: |
+          swift test --filter StickyNotesTests --enable-code-coverage
+        continue-on-error: false
+
+      # Integration Tests
+      - name: Integration Tests
+        run: |
+          swift test --filter StickyNotesIntegrationTests --enable-code-coverage
+        continue-on-error: false
+
+      # UI Tests
+      - name: UI Tests
+        run: |
+          xcodebuild test -scheme StickyNotesUITests -destination 'platform=macOS' -quiet
+        continue-on-error: false
+
+      # Performance Tests
+      - name: Performance Tests
+        run: |
+          swift test --filter StickyNotesPerformanceTests
+        continue-on-error: false
+
+      # Code Coverage
+      - name: Code Coverage Report
+        run: |
+          swift test --enable-code-coverage --enable-test-discovery
+          # Generate coverage report (simplified for CI)
+          find .build -name "*.profdata" -exec echo "Coverage data found: {}" \;
+
+      # Build for Release
+      - name: Build Release
+        run: |
+          swift build -c release --static-swift-stdlib
+        continue-on-error: false
+
+      # Archive Results
+       - name: Upload Test Results
+         uses: actions/upload-artifact@v3
+         if: always()
+         with:
+           name: test-results
+           path: |
+             .build/
+             *.xcresult
+           retention-days: 30
+
+  multi-platform-build:
+    name: Multi-Platform Build
+    runs-on: macos-latest
+    needs: quality-gates
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Swift
+        uses: swift-actions/setup-swift@v1
+        with:
+          swift-version: '5.10'
+
+      - name: Install dependencies
+        run: |
+          brew install swiftlint
+          brew install swiftformat
+
+      # Universal Binary Build
+      - name: Build Universal Binary
+        run: |
+          chmod +x scripts/build-compile-dist.sh
+          ./scripts/build-compile-dist.sh --universal --skip-codesign
+
+      # Architecture-Specific Builds
+      - name: Build Intel Binary
+        run: |
+          ./scripts/build-compile-dist.sh --arch-specific --skip-codesign
+
+      # Upload Build Artifacts
+      - name: Upload Universal Build
+        uses: actions/upload-artifact@v3
+        with:
+          name: universal-build
+          path: dist/
+          retention-days: 30
+
+      - name: Upload Architecture Builds
+        uses: actions/upload-artifact@v3
+        with:
+          name: arch-specific-builds
+          path: |
+            dist/x86_64/
+            dist/arm64/
+          retention-days: 30
+
+  performance-baseline:
+    name: Performance Baseline Check
+    runs-on: macos-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Swift
+        uses: swift-actions/setup-swift@v1
+        with:
+          swift-version: '5.10'
+
+      - name: Performance Regression Test
+        run: |
+          # Run performance tests multiple times for stability
+          for i in {1..3}; do
+            echo "Performance run $i"
+            swift test --filter StickyNotesPerformanceTests
+          done
+
+      - name: Memory Leak Detection
+        run: |
+          # Run memory-intensive tests
+          swift test --filter "testMemoryUsageDuringBulkOperations or testMemoryLeakDetection"
+
+  accessibility:
+    name: Accessibility Audit
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Swift
+        uses: swift-actions/setup-swift@v1
+        with:
+          swift-version: '5.10'
+
+      - name: Accessibility Tests
+        run: |
+          xcodebuild test -scheme StickyNotesUITests -destination 'platform=macOS' \
+            -test-iterations 3 -quiet
+
+  security:
+    name: Security Scan
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Swift
+        uses: swift-actions/setup-swift@v1
+        with:
+          swift-version: '5.10'
+
+      - name: Security Analysis
+        run: |
+          # Run static security analysis
+          swift build -c release
+          # Check for common security issues in Swift code
+          ! grep -r "force_unwrap" Sources/ || (echo "Force unwraps found - review for security"; exit 1)
+          ! grep -r "try!" Sources/ || (echo "Force try found - review for security"; exit 1)
+
+  release-validation:
+    name: Release Validation
+    runs-on: macos-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Swift
+        uses: swift-actions/setup-swift@v1
+        with:
+          swift-version: '5.10'
+
+      - name: Full Test Suite
+        run: |
+          swift test
+          xcodebuild test -scheme StickyNotesUITests -destination 'platform=macOS'
+
+      - name: Build Distribution
+        run: |
+          swift build -c release --static-swift-stdlib
+          mkdir -p dist
+          cp .build/release/StickyNotes dist/
+
+      - name: Upload Release Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: StickyNotes-${{ github.ref_name }}
+          path: dist/
+          retention-days: 365

@@ -1,0 +1,165 @@
+fastlane_version "2.210.1"
+
+default_platform :mac
+
+platform :mac do
+  before_all do
+    setup_ci if ENV['CI']
+  end
+
+  desc "Run tests"
+  lane :test do
+    run_tests(
+      project: "StickyNotes/StickyNotes.xcodeproj",
+      scheme: "StickyNotes",
+      clean: true,
+      code_coverage: true
+    )
+  end
+
+  desc "Build development version"
+  lane :build_development do
+    build_mac_app(
+      project: "StickyNotes/StickyNotes.xcodeproj",
+      scheme: "StickyNotes",
+      configuration: "Debug",
+      clean: true,
+      export_method: "development"
+    )
+  end
+
+  desc "Build for direct distribution"
+  lane :build_direct do
+    # Set up code signing
+    setup_ci if ENV['CI']
+
+    # Import certificates
+    import_certificate(
+      certificate_path: ENV['DEVELOPER_CERTIFICATE_PATH'],
+      certificate_password: ENV['DEVELOPER_CERTIFICATE_PASSWORD'],
+      keychain_name: ENV['KEYCHAIN_NAME'] || "fastlane_tmp_keychain"
+    )
+
+    # Build and sign
+    build_mac_app(
+      project: "StickyNotes/StickyNotes.xcodeproj",
+      scheme: "StickyNotes",
+      configuration: "Release",
+      clean: true,
+      export_method: "developer-id",
+      export_options: {
+        provisioningProfiles: {
+          "com.superclaude.stickynotes" => "StickyNotes Direct Distribution"
+        }
+      }
+    )
+
+    # Notarize
+    notarize(
+      package: lane_context[SharedValues::MAC_APP_BUNDLE],
+      bundle_id: "com.superclaude.stickynotes",
+      username: ENV['APPLE_ID'],
+      asc_provider: ENV['APPLE_TEAM_ID']
+    )
+
+    # Create DMG
+    sh "hdiutil create -volname 'StickyNotes' -srcfolder '#{lane_context[SharedValues::MAC_APP_BUNDLE]}' -ov -format UDZO 'StickyNotes.dmg'"
+  end
+
+  desc "Build for Mac App Store"
+  lane :build_app_store do
+    # Set up code signing for App Store
+    setup_ci if ENV['CI']
+
+    # Import App Store certificates
+    import_certificate(
+      certificate_path: ENV['APP_STORE_CERTIFICATE_PATH'],
+      certificate_password: ENV['APP_STORE_CERTIFICATE_PASSWORD'],
+      keychain_name: ENV['KEYCHAIN_NAME'] || "fastlane_tmp_keychain"
+    )
+
+    # Build for App Store
+    build_mac_app(
+      project: "StickyNotes/StickyNotes.xcodeproj",
+      scheme: "StickyNotes",
+      configuration: "Release",
+      clean: true,
+      export_method: "app-store",
+      export_options: {
+        provisioningProfiles: {
+          "com.superclaude.stickynotes" => "StickyNotes App Store"
+        }
+      }
+    )
+  end
+
+  desc "Deploy to TestFlight"
+  lane :beta do
+    build_app_store
+
+    # Upload to TestFlight
+    upload_to_testflight(
+      username: ENV['APPLE_ID'],
+      app_identifier: "com.superclaude.stickynotes",
+      skip_waiting_for_build_processing: true
+    )
+  end
+
+  desc "Deploy to App Store"
+  lane :release do
+    build_app_store
+
+    # Upload to App Store
+    deliver(
+      username: ENV['APPLE_ID'],
+      app_identifier: "com.superclaude.stickynotes",
+      skip_screenshots: true,
+      skip_metadata: true,
+      submit_for_review: false,
+      automatic_release: false
+    )
+  end
+
+  desc "Create GitHub release"
+  lane :github_release do
+    build_direct
+
+    # Create GitHub release
+    github_release = set_github_release(
+      repository_name: ENV['GITHUB_REPOSITORY'],
+      api_token: ENV['GITHUB_TOKEN'],
+      name: "StickyNotes v#{get_version_number}",
+      tag_name: "v#{get_version_number}",
+      description: "Release notes for StickyNotes v#{get_version_number}",
+      upload_assets: ["StickyNotes.dmg"]
+    )
+  end
+
+  desc "Run full CI pipeline"
+  lane :ci do
+    test
+    build_development
+    build_direct
+    github_release
+  end
+
+  error do |lane, exception|
+    # Handle errors
+    if ENV['SLACK_WEBHOOK_URL']
+      slack(
+        message: "Fastlane failed in lane #{lane}",
+        success: false,
+        slack_url: ENV['SLACK_WEBHOOK_URL'],
+        attachment_properties: {
+          fields: [
+            {
+              title: "Error",
+              value: exception.message,
+              short: false
+            }
+          ]
+        }
+      )
+    end
+  end
+end

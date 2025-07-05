@@ -1,0 +1,26 @@
+{
+  "timestamp": "2025-09-21T01:38:01-04:00",
+  "session_id": "20250921_013801",
+  "alerts": [
+    {
+      "severity": "critical",
+      "category": "build",
+      "message": "Debug build failed",
+      "details": "error: unable to override package 'StickyNotes' because its identity 'swarmv6' doesn't match override's identity (directory name) 'stickynotes'\n[0/1] Planning build",
+      "timestamp": "2025-09-21T01:38:07-04:00"
+    },
+    {
+      "severity": "critical",
+      "category": "build",
+      "message": "Release build failed",
+      "details": "error: unable to override package 'StickyNotes' because its identity 'swarmv6' doesn't match override's identity (directory name) 'stickynotes'",
+      "timestamp": "2025-09-21T01:38:14-04:00"
+    }
+  ],
+  "summary": {
+    "total_alerts": 2,
+    "critical": 2,
+    "warning": 0,
+    "info": 0
+  }
+}

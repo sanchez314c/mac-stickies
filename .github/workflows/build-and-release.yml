@@ -1,0 +1,251 @@
+name: Build and Release StickyNotes
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  release:
+    types: [ published ]
+
+env:
+  APP_NAME: StickyNotes
+  BUNDLE_ID: com.superclaude.stickynotes
+  TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+  DEVELOPER_CERTIFICATE: ${{ secrets.DEVELOPER_CERTIFICATE }}
+  DEVELOPER_CERTIFICATE_PASSWORD: ${{ secrets.DEVELOPER_CERTIFICATE_PASSWORD }}
+  APP_STORE_CONNECT_PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
+  APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+  APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+
+jobs:
+  quality-gates:
+    name: Quality Gates
+    runs-on: macos-latest
+    steps:
+       - name: Checkout code
+         uses: actions/checkout@v4
+
+       - name: Set up Xcode
+         uses: maxim-lobanov/setup-xcode@v1
+         with:
+           xcode-version: latest-stable
+
+       - name: Install Quality Tools
+         run: |
+           brew install swiftlint swiftformat
+
+       - name: Cache Swift dependencies
+         uses: actions/cache@v3
+         with:
+           path: |
+             .build
+             ~/Library/Caches/org.swift.swiftpm
+           key: ${{ runner.os }}-swift-${{ hashFiles('**/Package.resolved') }}
+           restore-keys: |
+             ${{ runner.os }}-swift-
+
+       - name: Run Quality Gates
+         run: |
+           export CI_MODE=true
+           export BRANCH_NAME="${{ github.ref_name }}"
+           export COMMIT_SHA="${{ github.sha }}"
+           if [ "${{ github.event_name }}" = "pull_request" ]; then
+             export PR_NUMBER="${{ github.event.number }}"
+           fi
+           ./monitoring/quality-gates/ci-integration.sh
+
+       - name: Upload Quality Reports
+         if: always()
+         uses: actions/upload-artifact@v3
+         with:
+           name: quality-reports
+           path: |
+             monitoring/quality-gates/ci_report_*.json
+             monitoring/alerts/logs/*.txt
+             monitoring/metrics/*.json
+
+  test:
+    name: Run Tests
+    runs-on: macos-latest
+    needs: quality-gates
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Cache Swift dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            .build
+            ~/Library/Caches/org.swift.swiftpm
+          key: ${{ runner.os }}-swift-${{ hashFiles('**/Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-swift-
+
+       - name: Run tests
+         run: |
+           # Run core library tests
+           swift test
+
+           # Run app tests
+           cd StickyNotes
+           swift test
+
+       - name: Run integration tests
+         run: |
+           cd StickyNotes
+           swift test --filter StickyNotesIntegrationTests
+
+   build-macos:
+     name: Build for macOS
+     runs-on: macos-latest
+     needs: test
+     steps:
+       - name: Checkout code
+         uses: actions/checkout@v4
+
+       - name: Set up Xcode
+         uses: maxim-lobanov/setup-xcode@v1
+         with:
+           xcode-version: latest-stable
+
+       - name: Install Fastlane
+         run: |
+           gem install bundler
+           bundle init
+           echo 'gem "fastlane"' >> Gemfile
+           bundle install
+
+       - name: Cache Swift dependencies
+         uses: actions/cache@v3
+         with:
+           path: |
+             .build
+             ~/Library/Caches/org.swift.swiftpm
+           key: ${{ runner.os }}-swift-${{ hashFiles('**/Package.resolved') }}
+           restore-keys: |
+             ${{ runner.os }}-swift-
+
+       - name: Build Development Version
+         run: |
+           bundle exec fastlane build_development
+
+       - name: Upload build artifacts
+         uses: actions/upload-artifact@v3
+         with:
+           name: macos-app
+           path: |
+             fastlane/build/
+
+   notarize-and-sign:
+     name: Notarize and Sign for Direct Distribution
+     runs-on: macos-latest
+     needs: build-macos
+     if: github.event_name == 'release'
+     steps:
+       - name: Checkout code
+         uses: actions/checkout@v4
+
+       - name: Set up Xcode
+         uses: maxim-lobanov/setup-xcode@v1
+         with:
+           xcode-version: latest-stable
+
+       - name: Install Fastlane
+         run: |
+           gem install bundler
+           bundle init
+           echo 'gem "fastlane"' >> Gemfile
+           bundle install
+
+       - name: Import Developer Certificate
+         uses: apple-actions/import-codesign-certs@v2
+         with:
+           p12-file-base64: ${{ secrets.DEVELOPER_CERTIFICATE }}
+           p12-password: ${{ secrets.DEVELOPER_CERTIFICATE_PASSWORD }}
+
+       - name: Build and Notarize Direct Distribution
+         run: |
+           export APPLE_ID="${{ secrets.APPLE_ID }}"
+           export APPLE_APP_SPECIFIC_PASSWORD="${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}"
+           export APPLE_TEAM_ID="${{ secrets.APPLE_TEAM_ID }}"
+           bundle exec fastlane build_direct
+
+       - name: Upload DMG to release
+         uses: softprops/action-gh-release@v1
+         with:
+           files: fastlane/build/StickyNotes.dmg
+         env:
+           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+   build-mas:
+     name: Build for Mac App Store
+     runs-on: macos-latest
+     needs: test
+     if: github.event_name == 'release'
+     steps:
+       - name: Checkout code
+         uses: actions/checkout@v4
+
+       - name: Set up Xcode
+         uses: maxim-lobanov/setup-xcode@v1
+         with:
+           xcode-version: latest-stable
+
+       - name: Install Fastlane
+         run: |
+           gem install bundler
+           bundle init
+           echo 'gem "fastlane"' >> Gemfile
+           bundle install
+
+       - name: Import App Store Certificate
+         uses: apple-actions/import-codesign-certs@v2
+         with:
+           p12-file-base64: ${{ secrets.APP_STORE_CERTIFICATE }}
+           p12-password: ${{ secrets.APP_STORE_CERTIFICATE_PASSWORD }}
+
+       - name: Build for App Store
+         run: |
+           export APPLE_ID="${{ secrets.APPLE_ID }}"
+           export APPLE_APP_SPECIFIC_PASSWORD="${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}"
+           export APPLE_TEAM_ID="${{ secrets.APPLE_TEAM_ID }}"
+           bundle exec fastlane build_app_store
+
+       - name: Upload to App Store Connect
+         run: |
+           export APPLE_ID="${{ secrets.APPLE_ID }}"
+           export APPLE_APP_SPECIFIC_PASSWORD="${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}"
+           export APPLE_TEAM_ID="${{ secrets.APPLE_TEAM_ID }}"
+           bundle exec fastlane release
+
+  performance-test:
+    name: Performance Testing
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Run performance tests
+        run: |
+          cd StickyNotes
+          swift test --filter StickyNotesPerformanceTests
+
+      - name: Upload performance results
+        uses: actions/upload-artifact@v3
+        with:
+          name: performance-results
+          path: |
+            *.xcresult
+            test-results.xml

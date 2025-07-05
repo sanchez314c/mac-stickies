@@ -1,0 +1,73 @@
+{
+  "project": "StickyNotes",
+  "dashboard": {
+    "title": "StickyNotes Production Monitoring",
+    "refresh_interval_seconds": 300,
+    "timezone": "UTC",
+    "widgets": [
+      {
+        "type": "metric",
+        "title": "Active Users",
+        "metrics": ["daily_active_users", "weekly_active_users", "monthly_active_users"],
+        "chart_type": "line",
+        "time_range": "30d"
+      },
+      {
+        "type": "metric",
+        "title": "App Performance",
+        "metrics": ["app_startup_time", "memory_usage", "cpu_usage"],
+        "chart_type": "line",
+        "time_range": "7d",
+        "thresholds": {
+          "app_startup_time": 3000,
+          "memory_usage": 100,
+          "cpu_usage": 20
+        }
+      },
+      {
+        "type": "metric",
+        "title": "Error Rates",
+        "metrics": ["crash_rate", "error_rate", "sync_failure_rate"],
+        "chart_type": "bar",
+        "time_range": "7d",
+        "thresholds": {
+          "crash_rate": 0.005,
+          "error_rate": 0.01,
+          "sync_failure_rate": 0.05
+        }
+      },
+      {
+        "type": "table",
+        "title": "Recent Alerts",
+        "data_source": "alerts",
+        "columns": ["timestamp", "level", "message", "status"],
+        "limit": 10,
+        "sort_by": "timestamp",
+        "sort_order": "desc"
+      },
+      {
+        "type": "pie_chart",
+        "title": "Error Distribution",
+        "data_source": "errors_by_type",
+        "time_range": "7d"
+      },
+      {
+        "type": "heatmap",
+        "title": "User Activity",
+        "data_source": "user_activity_heatmap",
+        "time_range": "24h"
+      }
+    ],
+    "alerts_panel": {
+      "enabled": true,
+      "position": "top",
+      "max_alerts": 5,
+      "auto_dismiss_resolved": true
+    },
+    "export": {
+      "enabled": true,
+      "formats": ["pdf", "png", "csv"],
+      "schedule": "daily"
+    }
+  }
+}

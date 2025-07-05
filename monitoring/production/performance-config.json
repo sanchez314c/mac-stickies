@@ -1,0 +1,43 @@
+{
+  "project": "StickyNotes",
+  "monitoring": {
+    "enabled": true,
+    "interval_seconds": 300,
+    "metrics": {
+      "app_startup_time": {
+        "enabled": true,
+        "threshold_ms": 3000,
+        "alert_on_exceed": true
+      },
+      "memory_usage": {
+        "enabled": true,
+        "threshold_mb": 100,
+        "alert_on_exceed": true
+      },
+      "cpu_usage": {
+        "enabled": true,
+        "threshold_percent": 20,
+        "alert_on_exceed": true
+      },
+      "disk_usage": {
+        "enabled": true,
+        "threshold_mb": 50,
+        "alert_on_exceed": true
+      },
+      "network_requests": {
+        "enabled": true,
+        "track_failures": true,
+        "alert_on_failure_rate": 0.05
+      }
+    }
+  },
+  "alerting": {
+    "slack_webhook": "${SLACK_WEBHOOK_URL}",
+    "email_recipients": ["${ALERT_EMAIL}"],
+    "alert_levels": {
+      "critical": ["app_startup_time", "memory_usage"],
+      "warning": ["cpu_usage", "disk_usage"],
+      "info": ["network_requests"]
+    }
+  }
+}

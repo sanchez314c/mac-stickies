@@ -1,0 +1,103 @@
+{
+  "project": "StickyNotes",
+  "alerting": {
+    "enabled": true,
+    "channels": {
+      "slack": {
+        "enabled": true,
+        "webhook_url": "${SLACK_WEBHOOK_URL}",
+        "channel": "#StickyNotes-alerts",
+        "username": "StickyNotes Monitor"
+      },
+      "email": {
+        "enabled": true,
+        "smtp_server": "${SMTP_SERVER}",
+        "smtp_port": 587,
+        "smtp_username": "${SMTP_USERNAME}",
+        "smtp_password": "${SMTP_PASSWORD}",
+        "from_address": "alerts@StickyNotes.com",
+        "recipients": ["${ALERT_EMAIL}"]
+      },
+      "webhook": {
+        "enabled": false,
+        "url": "${WEBHOOK_URL}",
+        "headers": {
+          "Authorization": "Bearer ${WEBHOOK_TOKEN}",
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    "alert_types": {
+      "critical": {
+        "crash_rate_spike": {
+          "enabled": true,
+          "threshold": 0.005,
+          "time_window_minutes": 60,
+          "cooldown_minutes": 30
+        },
+        "performance_regression": {
+          "enabled": true,
+          "threshold": 0.20,
+          "time_window_hours": 24,
+          "cooldown_hours": 6
+        },
+        "app_store_rejection": {
+          "enabled": true,
+          "immediate_alert": true
+        }
+      },
+      "warning": {
+        "memory_usage_high": {
+          "enabled": true,
+          "threshold_mb": 150,
+          "time_window_minutes": 30
+        },
+        "slow_startup": {
+          "enabled": true,
+          "threshold_ms": 5000,
+          "time_window_hours": 1
+        },
+        "sync_failures": {
+          "enabled": true,
+          "threshold_rate": 0.10,
+          "time_window_hours": 1
+        }
+      },
+      "info": {
+        "new_version_released": {
+          "enabled": true
+        },
+        "user_feedback_received": {
+          "enabled": true,
+          "batch_size": 10
+        },
+        "performance_improved": {
+          "enabled": true,
+          "threshold": 0.10
+        }
+      }
+    },
+    "escalation": {
+      "enabled": true,
+      "levels": [
+        {
+          "name": "immediate",
+          "delay_minutes": 0,
+          "channels": ["slack", "email"]
+        },
+        {
+          "name": "escalation_1",
+          "delay_minutes": 30,
+          "channels": ["slack", "email"],
+          "additional_recipients": ["${ESCALATION_EMAIL_1}"]
+        },
+        {
+          "name": "escalation_2",
+          "delay_minutes": 120,
+          "channels": ["slack", "email"],
+          "additional_recipients": ["${ESCALATION_EMAIL_2}"]
+        }
+      ]
+    }
+  }
+}

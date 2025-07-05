@@ -1,0 +1,36 @@
+{
+  "project": "StickyNotes",
+  "deployment": {
+    "track_releases": true,
+    "channels": ["app_store", "direct_download"],
+    "version_tracking": {
+      "current_version": "${CURRENT_VERSION}",
+      "previous_version": "${PREVIOUS_VERSION}",
+      "release_date": "${RELEASE_DATE}"
+    },
+    "rollout_strategy": {
+      "app_store": {
+        "phased_rollout": true,
+        "initial_percentage": 10,
+        "increment_percentage": 10,
+        "monitoring_days": 7
+      },
+      "direct_download": {
+        "auto_update": true,
+        "update_channel": "stable"
+      }
+    }
+  },
+  "monitoring": {
+    "crash_rate_tracking": true,
+    "performance_regression": true,
+    "user_feedback_collection": true,
+    "support_ticket_monitoring": true
+  },
+  "rollback_triggers": {
+    "crash_rate_threshold": 0.01,
+    "performance_regression_threshold": 0.15,
+    "user_complaint_threshold": 50,
+    "auto_rollback_enabled": false
+  }
+}

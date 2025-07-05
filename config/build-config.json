@@ -1,0 +1,167 @@
+{
+  "project": {
+    "name": "StickyNotes",
+    "bundle_id": "com.jasonpaulmichaels.StickyNotes",
+    "version": "1.0.0",
+    "build_number": "1",
+    "author": "Jasonn Michaels",
+    "description": "A modern macOS desktop sticky notes application"
+  },
+  "platforms": {
+    "macos": {
+      "deployment_target": "13.0",
+      "architectures": ["x86_64", "arm64"],
+      "supported_versions": ["12.0", "13.0", "14.0", "15.0"],
+      "universal_binary": true
+    }
+  },
+  "build_configurations": {
+    "debug": {
+      "optimization_level": "none",
+      "enable_bitcode": false,
+      "enable_testability": true,
+      "generate_debug_symbols": true,
+      "strip_debug_symbols": false
+    },
+    "release": {
+      "optimization_level": "fast",
+      "enable_bitcode": true,
+      "enable_testability": false,
+      "generate_debug_symbols": true,
+      "strip_debug_symbols": true
+    },
+    "distribution": {
+      "optimization_level": "fastest",
+      "enable_bitcode": true,
+      "enable_testability": false,
+      "generate_debug_symbols": false,
+      "strip_debug_symbols": true,
+      "enable_hardened_runtime": true
+    }
+  },
+  "code_signing": {
+    "development": {
+      "identity": "Apple Development",
+      "team_id": "",
+      "provisioning_profile": "",
+      "entitlements": "StickyNotes/StickyNotes.entitlements"
+    },
+    "distribution": {
+      "identity": "Apple Distribution",
+      "team_id": "",
+      "provisioning_profile": "",
+      "entitlements": "StickyNotes/StickyNotes-MAS.entitlements"
+    },
+    "app_store": {
+      "identity": "3rd Party Mac Developer Application",
+      "team_id": "",
+      "provisioning_profile": "",
+      "entitlements": "StickyNotes/StickyNotes-MAS.entitlements"
+    }
+  },
+  "distribution": {
+    "app_store_connect": {
+      "enabled": false,
+      "api_key": "",
+      "issuer_id": "",
+      "private_key": ""
+    },
+    "direct_distribution": {
+      "enabled": true,
+      "formats": ["app", "pkg", "dmg"],
+      "notarization": {
+        "enabled": true,
+        "apple_id": "",
+        "password": "",
+        "team_id": ""
+      }
+    }
+  },
+  "dependencies": {
+    "external": [],
+    "system_frameworks": [
+      "SwiftUI",
+      "CoreData",
+      "CloudKit",
+      "AppKit",
+      "Foundation"
+    ]
+  },
+  "testing": {
+    "unit_tests": {
+      "enabled": true,
+      "target": "StickyNotesTests",
+      "parallel_execution": true
+    },
+    "ui_tests": {
+      "enabled": true,
+      "target": "StickyNotesUITests",
+      "parallel_execution": false
+    },
+    "integration_tests": {
+      "enabled": true,
+      "target": "StickyNotesIntegrationTests",
+      "parallel_execution": false
+    },
+    "performance_tests": {
+      "enabled": true,
+      "target": "StickyNotesPerformanceTests",
+      "baseline_comparison": true
+    },
+    "coverage": {
+      "enabled": true,
+      "minimum_threshold": 80,
+      "exclude_patterns": [
+        "*/Tests/*",
+        "*/Generated/*"
+      ]
+    }
+  },
+  "quality_checks": {
+    "swiftlint": {
+      "enabled": true,
+      "config_file": ".swiftlint.yml",
+      "strict": false
+    },
+    "swiftformat": {
+      "enabled": true,
+      "config_file": ".swiftformat",
+      "lint": true
+    },
+    "security_analysis": {
+      "enabled": true,
+      "tools": ["clang-static-analyzer", "custom-security-checks"]
+    }
+  },
+  "build_artifacts": {
+    "output_directories": {
+      "build": "build/",
+      "dist": "dist/",
+      "archives": "archives/",
+      "logs": "build/logs/"
+    },
+    "file_patterns": {
+      "app_bundle": "*.app",
+      "installer": "*.pkg",
+      "archive": "*.xcarchive",
+      "symbols": "*.dSYM*"
+    }
+  },
+  "environment_variables": {
+    "development": {
+      "DEBUG": "true",
+      "LOG_LEVEL": "debug",
+      "ENABLE_CLOUDKIT": "false"
+    },
+    "staging": {
+      "DEBUG": "false",
+      "LOG_LEVEL": "info",
+      "ENABLE_CLOUDKIT": "true"
+    },
+    "production": {
+      "DEBUG": "false",
+      "LOG_LEVEL": "warning",
+      "ENABLE_CLOUDKIT": "true"
+    }
+  }
+}

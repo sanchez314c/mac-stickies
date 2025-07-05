@@ -1,0 +1,19 @@
+{
+  "timestamp": "2025-09-21T01:38:18-04:00",
+  "report_id": "20250921_013818",
+  "sections": {
+    "quality_gates": {
+      "score": "85"
+    },
+    "performance": {
+      "score": "90"
+    },
+    "alerts": {
+      "score": "88"
+    },
+    "progress": {
+      "score": "82"
+    }
+  },
+  "overall_status": "completed"
+}

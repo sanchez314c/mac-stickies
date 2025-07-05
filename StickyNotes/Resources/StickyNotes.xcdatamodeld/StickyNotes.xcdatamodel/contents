@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="1" systemVersion="11A511" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="Note" representedClassName="Note" syncable="YES">
+        <attribute name="id" optional="NO" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="title" optional="NO" attributeType="String" defaultValueString=""/>
+        <attribute name="content" optional="NO" attributeType="String" defaultValueString=""/>
+        <attribute name="createdAt" optional="NO" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="updatedAt" optional="NO" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="color" optional="NO" attributeType="String" defaultValueString="#FFE4B5"/>
+        <attribute name="isPinned" optional="NO" attributeType="Boolean" usesScalarValueType="YES" defaultValueString="NO"/>
+        <attribute name="category" optional="YES" attributeType="String"/>
+        <attribute name="tags" optional="YES" attributeType="Transformable" customClassName="[String]"/>
+        <attribute name="positionX" optional="NO" attributeType="Double" defaultValueString="100" usesScalarValueType="YES"/>
+        <attribute name="positionY" optional="NO" attributeType="Double" defaultValueString="100" usesScalarValueType="YES"/>
+        <attribute name="width" optional="NO" attributeType="Double" defaultValueString="300" usesScalarValueType="YES"/>
+        <attribute name="height" optional="NO" attributeType="Double" defaultValueString="200" usesScalarValueType="YES"/>
+    </entity>
+    <elements>
+        <element name="Note" positionX="0" positionY="0" width="128" height="165"/>
+    </elements>
+</model>
